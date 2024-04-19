@@ -1,8 +1,7 @@
 import { CreateUserDTO } from './model/create-user.dto';
 import { User } from './model/user.interface';
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from '@nestjs/common';
 import { UserService } from './user.service';
-
 
 @Controller('user')
 export class UserController {
@@ -23,6 +22,9 @@ export class UserController {
 
     @Get(':id')
     async getById(@Param('id') id: string): Promise<User> {
+        var mongoose = require('mongoose');
+        if (!mongoose.Types.ObjectId.isValid(id)) throw new NotFoundException("Id is not valid!")
+
         const user = await this.userService.getById(id);
         if (!user) {
             throw new NotFoundException('User does not exist!');
@@ -33,7 +35,10 @@ export class UserController {
 
     @Put(':id')
     async update(@Param('id') id: string, @Body() user: User): Promise<any> {
-        const userValid = this.userService.getById(id)
+        var mongoose = require('mongoose');
+        if (!mongoose.Types.ObjectId.isValid(id)) throw new NotFoundException("Id is not valid!")
+
+        const userValid = await this.userService.getById(id)
         if (userValid) {
             await this.userService.update(id, user);
             return { user: await this.userService.getById(id), message: "User updated successfully" }
@@ -43,7 +48,10 @@ export class UserController {
 
     @Delete(':id')
     async delete(@Param('id') id: string): Promise<any> {
-        const user = this.userService.getById(id)
+        var mongoose = require('mongoose');
+        if (!mongoose.Types.ObjectId.isValid(id)) throw new NotFoundException("Id is not valid!")
+        
+        const user = await this.userService.getById(id)
         if (user) {
             await this.userService.delete(id);
             return { message: "User deleted successfully" }
