@@ -1,3 +1,4 @@
+import { mongooseFactory } from './_utils/factory/mongoose.factory';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -7,10 +8,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    MongooseModule.forRoot(process.env.MONGODB_URL, {
-      dbName: process.env.DBNAME,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: [`./.env`],
     }),
+    MongooseModule.forRootAsync(mongooseFactory),
     UserModule,
   ],
   controllers: [AppController],
